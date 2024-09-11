@@ -8,8 +8,18 @@ Para rodar o projeto, clone esse git para uma pasta, acesse a pasta com esses ar
 docker compose up airflow-init
 docker compose up 
  ```
+Para acessar o airflow utilize os seguintes acessos:
+```
+user: airflow
+password: airflow
+```
 
-Acerca da explicação do código, se basear nos comentarios do mesmo.
+Dentro do Airflow é preciso criar a conexão com o Bigquery para isso, acesso a pagina Connection, e coloque as seguintes configurações:
+- connection ID: google-cloud-default
+- Coneection Type: Google Cloud
+- Keyfile JSON: O corpo do arquivo de conta de serviço
+
+Depois de configurar a conexão e so executar a dag.
 
 ## Arquitetura
 Eu montei o projeto considerando o seguinte ETL:
@@ -17,6 +27,9 @@ Eu montei o projeto considerando o seguinte ETL:
 - Um código python de nome get_data_api, para coletar os dados da API e gravar em um arquivo csv;
 - Um código python de nome raw_to_trusted, que abre os 2 arquivos csv (gdvDespesas e gdvReceitas), os higieniza e os grava no bigquery utilizando pandas.
 - Um código de nome Orchestrator, que é uma DAG a qual orquestra todo o processo inicialmente chamando os códigos python, depois executando algumas querys dentro do bigquery.
+  
+Acerca da explicação do código, se basear nos comentarios do mesmo.
+
 
 ## Considerações importantes
 - Como as respostas das perguntas são tabelas no bigquery, eu criei um looker studio para poderem visualizar as respostas com mais facilidade.
