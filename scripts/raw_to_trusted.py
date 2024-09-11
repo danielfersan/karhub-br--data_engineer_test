@@ -5,6 +5,7 @@ import os
 
 load_dotenv()
 
+# Pega os parametros do arquivo .env
 path_despesas = os.getenv('path_file_despesas')
 path_receitas = os.getenv('path_file_receitas')
 table_id = os.getenv('table_id')
@@ -12,6 +13,7 @@ project_id = os.getenv('project_id')
 path_file_sa = os.getenv('path_file_sa')
 path_file_cotacao_dolar = os.getenv('path_file_cotacao_dolar')
 
+# Utiliza a conta de serviço para se conectar ao GCP
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = path_file_sa
 client = bigquery.Client()
 
@@ -20,7 +22,8 @@ df_valor_dolar = pd.read_csv(path_file_cotacao_dolar,sep= ';')
 df_valor_dolar = df_valor_dolar[df_valor_dolar['date'] == '2022-06-22']
 valor_dolar = df_valor_dolar['high'].tolist()[0]
 
-# Tratametno da tabela de receitas
+
+# Tratametno da tabela de receitas - E grava no Bigquery a tabela gdvReceitas
 df_receitas = pd.read_csv(path_receitas)
 df_receitas = df_receitas.dropna().rename(columns={'Arrecadado': 'total_arrecadado'})
 df_receitas['total_arrecadado'] = (df_receitas['total_arrecadado'].str.replace('.','').str.replace(',','.').astype(float))
@@ -29,7 +32,7 @@ df_receitas.to_gbq(f'{table_id}.gdvReceitas',project_id=project_id, if_exists='r
 df_receitas = df_receitas.groupby('Fonte de Recursos')['total_arrecadado'].sum()
 df_receitas = df_receitas.reset_index()
 
-# Tratamento da tabela de despesas
+# Tratamento da tabela de despesas - E grava no Bigquery a tabela gdvDespesas
 df_despesas = pd.read_csv(path_despesas)
 df_despesas = df_despesas[['Fonte de Recursos','Liquidado']]
 df_despesas = df_despesas.dropna().rename(columns={'Liquidado': 'total_liquidado'})
